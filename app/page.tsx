@@ -11,52 +11,15 @@ import {
   ArrowRight,
   Quote,
 } from "lucide-react";
+import AppNavbar from "@/components/AppNavbar";
+
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-white">
       {/* NAVBAR */}
-      <header className="w-full border-b border-slate-800/60 backdrop-blur sticky top-0 z-30 bg-slate-950/70">
-        <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Left: Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-9 w-9 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/40">
-              <Dumbbell className="h-5 w-5" />
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="font-semibold text-base sm:text-lg">
-                FlexAI Coach
-              </span>
-              <span className="text-[11px] sm:text-xs text-slate-400">
-                Your personal AI fitness mentor
-              </span>
-            </div>
-          </Link>
+      <AppNavbar />
 
-          {/* Right: Theme toggle + auth buttons */}
-          <div className="flex items-center gap-3">
-            {/* Simple placeholder theme toggle (wire up later) */}
-            <button
-              type="button"
-              className="inline-flex items-center justify-center h-9 w-9 rounded-full border border-slate-700 bg-slate-900/60 hover:bg-slate-800 transition"
-              aria-label="Toggle theme"
-            >
-              <span className="text-lg">🌓</span>
-            </button>
-
-            <Button
-              variant="ghost"
-              className="hidden sm:inline-flex text-slate-200 hover:text-white hover:bg-slate-800/60"
-            >
-              Sign in
-            </Button>
-
-            <Button className="bg-indigo-500 hover:bg-indigo-600 text-sm sm:text-base shadow-lg shadow-indigo-500/40">
-              Sign up
-            </Button>
-          </div>
-        </nav>
-      </header>
 
       {/* MAIN CONTENT */}
       <main className="flex-1">

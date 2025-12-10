@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+// import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { PersonalizedPlanIntro } from "@/components/fitness/PersonalizedPlanIntr
 import { DayPlanCard } from "@/components/fitness/DayPlanCard";
 import { TipsAndSuccessSection } from "@/components/fitness/TipsAndSuccessSection";
 import { parsePlanMarkdown, ParsedPlan } from "@/utils/parsePlanMarkdown";
+import AppNavbar from "@/components/AppNavbar";
 
 import {
   Sparkles,
@@ -89,7 +90,7 @@ export default function ResultsPage() {
   // LOADING SCREEN ----------------------------------
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white items-center justify-center text-center p-6">
+      <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-white items-center justify-center text-center p-6">
         <Loader2 className="w-14 h-14 animate-spin text-indigo-400 mb-6" />
         <h2 className="text-2xl sm:text-3xl font-semibold">
           Loading your plan...
@@ -104,47 +105,10 @@ export default function ResultsPage() {
   // NO DATA FOUND ----------------------------------
   if (!fitnessData || !parsedPlan) {
     return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+      <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-white">
         {/* NAVBAR */}
-        <header className="w-full border-b border-slate-800/60 backdrop-blur sticky top-0 z-30 bg-slate-950/70">
-          <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            {/* Left: Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/40">
-                <Dumbbell className="h-5 w-5" />
-              </div>
-              <div className="flex flex-col leading-tight">
-                <span className="font-semibold text-base sm:text-lg">
-                  FlexAI Coach
-                </span>
-                <span className="text-[11px] sm:text-xs text-slate-400">
-                  Your personal AI fitness mentor
-                </span>
-              </div>
-            </Link>
+        <AppNavbar />
 
-            {/* Right: Theme toggle + auth buttons (placeholder) */}
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                className="inline-flex items-center justify-center h-9 w-9 rounded-full border border-slate-700 bg-slate-900/60 hover:bg-slate-800 transition"
-                aria-label="Toggle theme"
-              >
-                <span className="text-lg">🌓</span>
-              </button>
-              <Button
-                asChild
-                variant="ghost"
-                className="hidden sm:inline-flex text-slate-200 hover:text-white hover:bg-slate-800/60"
-              >
-                <Link href="#">Sign in</Link>
-              </Button>
-              <Button className="bg-indigo-500 hover:bg-indigo-600 text-sm sm:text-base shadow-lg shadow-indigo-500/40">
-                Sign up
-              </Button>
-            </div>
-          </nav>
-        </header>
 
         <main className="flex-1 flex flex-col items-center justify-center text-center px-6">
           <Sparkles className="w-12 h-12 text-indigo-400 mb-4 animate-pulse" />
@@ -169,47 +133,9 @@ export default function ResultsPage() {
 
   // MAIN RESULTS DASHBOARD ----------------------------------
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-white">
       {/* NAVBAR (same as other pages) */}
-      <header className="w-full border-b border-slate-800/60 backdrop-blur sticky top-0 z-30 bg-slate-950/70">
-        <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Left: Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-9 w-9 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/40">
-              <Dumbbell className="h-5 w-5" />
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="font-semibold text-base sm:text-lg">
-                FlexAI Coach
-              </span>
-              <span className="text-[11px] sm:text-xs text-slate-400">
-                Your personal AI fitness mentor
-              </span>
-            </div>
-          </Link>
-
-          {/* Right: Theme toggle + auth buttons (placeholder) */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              className="inline-flex items-center justify-center h-9 w-9 rounded-full border border-slate-700 bg-slate-900/60 hover:bg-slate-800 transition"
-              aria-label="Toggle theme"
-            >
-              <span className="text-lg">🌓</span>
-            </button>
-            <Button
-              asChild
-              variant="ghost"
-              className="hidden sm:inline-flex text-slate-200 hover:text-white hover:bg-slate-800/60"
-            >
-              <Link href="#">Sign in</Link>
-            </Button>
-            <Button className="bg-indigo-500 hover:bg-indigo-600 text-sm sm:text-base shadow-lg shadow-indigo-500/40">
-              Sign up
-            </Button>
-          </div>
-        </nav>
-      </header>
+      <AppNavbar />
 
       <main className="flex-1">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12 space-y-8 lg:space-y-10">
@@ -295,7 +221,7 @@ export default function ResultsPage() {
             </div>
 
             {/* RIGHT: DASHBOARD ACCORDION */}
-            <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-4 sm:p-5 md:p-6 shadow-xl shadow-black/40">
+            <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 p-4 sm:p-5 md:p-6 shadow-lg dark:shadow-xl dark:shadow-black/40">
               <Accordion type="single" collapsible className="space-y-3" defaultValue={defaultAccordionValue}>
                 {/* INTRO SECTION */}
                 <AccordionItem value="intro" className="border-b border-slate-800/70">

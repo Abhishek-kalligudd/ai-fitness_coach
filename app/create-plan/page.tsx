@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -26,7 +25,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import { Dumbbell, Sparkles } from "lucide-react";
+import {Sparkles } from "lucide-react";
+import AppNavbar from "@/components/AppNavbar";
 
 // SCHEMA (unchanged)
 const fitnessFormSchema = z.object({
@@ -122,50 +122,10 @@ export default function FitnessFormPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-white">
       {/* NAVBAR (same style as landing page) */}
-      <header className="w-full border-b border-slate-800/60 backdrop-blur sticky top-0 z-30 bg-slate-950/70">
-        <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Left: Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-9 w-9 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/40">
-              <Dumbbell className="h-5 w-5" />
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="font-semibold text-base sm:text-lg">
-                FlexAI Coach
-              </span>
-              <span className="text-[11px] sm:text-xs text-slate-400">
-                Your personal AI fitness mentor
-              </span>
-            </div>
-          </Link>
+      <AppNavbar />
 
-          {/* Right: Theme toggle + auth buttons */}
-          <div className="flex items-center gap-3">
-            {/* Placeholder theme toggle */}
-            <button
-              type="button"
-              className="inline-flex items-center justify-center h-9 w-9 rounded-full border border-slate-700 bg-slate-900/60 hover:bg-slate-800 transition"
-              aria-label="Toggle theme"
-            >
-              <span className="text-lg">🌓</span>
-            </button>
-
-            <Button
-              asChild
-              variant="ghost"
-              className="hidden sm:inline-flex text-slate-200 hover:text-white hover:bg-slate-800/60"
-            >
-              <Link href="#">Sign in</Link>
-            </Button>
-
-            <Button className="bg-indigo-500 hover:bg-indigo-600 text-sm sm:text-base shadow-lg shadow-indigo-500/40">
-              Sign up
-            </Button>
-          </div>
-        </nav>
-      </header>
 
       {/* MAIN CONTENT */}
       <main className="flex-1">
@@ -188,8 +148,7 @@ export default function FitnessFormPage() {
           </div>
 
           {/* FORM CARD */}
-          <div className="w-full bg-slate-900/80 border border-slate-800 rounded-3xl shadow-2xl shadow-black/40 px-5 py-6 sm:px-7 sm:py-8">
-            <Form {...form}>
+          <div className="w-full bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl dark:shadow-2xl dark:shadow-black/40 px-5 py-6 sm:px-7 sm:py-8">            <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 {/* Name */}
                 <FormField
