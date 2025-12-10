@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import {Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import AppNavbar from "@/components/AppNavbar";
 
 // SCHEMA (unchanged)
@@ -34,10 +34,7 @@ const fitnessFormSchema = z.object({
   age: z
     .string()
     .refine(
-      (val) =>
-        !isNaN(Number(val)) &&
-        Number(val) >= 1 &&
-        Number(val) <= 120,
+      (val) => !isNaN(Number(val)) && Number(val) >= 1 && Number(val) <= 120,
       "Age must be between 1 and 120"
     )
     .transform((val) => Number(val)),
@@ -126,7 +123,6 @@ export default function FitnessFormPage() {
       {/* NAVBAR (same style as landing page) */}
       <AppNavbar />
 
-
       {/* MAIN CONTENT */}
       <main className="flex-1">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16">
@@ -148,8 +144,13 @@ export default function FitnessFormPage() {
           </div>
 
           {/* FORM CARD */}
-          <div className="w-full bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl dark:shadow-2xl dark:shadow-black/40 px-5 py-6 sm:px-7 sm:py-8">            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="w-full bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl dark:shadow-2xl dark:shadow-black/40 px-5 py-6 sm:px-7 sm:py-8">
+            {" "}
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 {/* Name */}
                 <FormField
                   control={form.control}
@@ -444,7 +445,9 @@ export default function FitnessFormPage() {
                   disabled={isLoading}
                   className="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-base sm:text-lg py-3.5 rounded-xl shadow-lg shadow-indigo-500/40 transition-all"
                 >
-                  {isLoading ? "Generating your plan..." : "Generate my 7-day plan"}
+                  {isLoading
+                    ? "Generating your plan..."
+                    : "Generate my 7-day plan"}
                 </Button>
               </form>
             </Form>

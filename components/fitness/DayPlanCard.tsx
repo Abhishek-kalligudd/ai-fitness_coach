@@ -15,40 +15,36 @@ import { useSpeech } from "@/components/SpeechProvider";
 interface DayPlanCardProps {
   title: string;
   markdown: string;
+  onGenerateImage?: (title: string, markdown: string) => void;
 }
 
-export function DayPlanCard({ title, markdown }: DayPlanCardProps) {
+export function DayPlanCard({
+  title,
+  markdown,
+  onGenerateImage,
+}: DayPlanCardProps) {
   const { speak, pause, resume, status, currentText, supported } = useSpeech();
 
-  // Build the text we want to read for this day
-    // Build the text we want to read for this day
+  // Text to read for this day
   const speechText = useMemo(() => {
     if (!markdown) return title;
 
     const cleaned = markdown
-      // Turn newlines into sentence-like pauses
+      // newlines → sentence-like breaks
       .replace(/\n+/g, ". ")
-
-      // Remove markdown control symbols
+      // strip markdown control symbols
       .replace(/[#>*`*_|\[\]\(\)]/g, " ")
-
-      // Treat " - " like a break (common in bullet lists)
+      // " - " (bullets) → breaks
       .replace(/\s-\s/g, ". ")
-
-      // Collapse whitespace
+      // collapse spaces
       .replace(/\s+/g, " ")
-
-      // Avoid weird multiple dots
+      // avoid ... and ....
       .replace(/\.{2,}/g, ".")
-
       .trim();
 
-    // Avoid double dots if title already ends with "."
     const safeTitle = title.replace(/\.+$/, "");
-
     return `${safeTitle}. ${cleaned}`;
   }, [title, markdown]);
-
 
   const isThisDay = currentText === speechText;
   const isPlayingThisDay = isThisDay && status === "playing";
@@ -58,18 +54,15 @@ export function DayPlanCard({ title, markdown }: DayPlanCardProps) {
     if (!supported) return;
 
     if (isPlayingThisDay) {
-      // currently reading this day → pause
       pause();
       return;
     }
 
     if (isPausedThisDay) {
-      // paused on this day → resume
       resume();
       return;
     }
 
-    // otherwise start reading this day's text (also cancels anything else)
     speak(speechText);
   };
 
@@ -100,7 +93,7 @@ export function DayPlanCard({ title, markdown }: DayPlanCardProps) {
           </div>
         </div>
 
-        {/* Actions: full-width stacked on mobile, inline on desktop */}
+        {/* Actions: full-width on mobile, inline on desktop */}
         <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-1 sm:mt-0">
           <button
             type="button"
@@ -116,9 +109,10 @@ export function DayPlanCard({ title, markdown }: DayPlanCardProps) {
 
           <button
             type="button"
+            onClick={() => onGenerateImage?.(title, markdown)}
             className="group inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs sm:text-sm bg-slate-900/70 border border-slate-800 hover:bg-slate-900 w-full sm:w-auto"
             aria-label="View image"
-            title="View exercise image"
+            title="View exercise / meal images"
           >
             <ImageIcon className="w-4 h-4 text-slate-300 group-hover:text-amber-300" />
             <span className="text-slate-300">Image</span>
@@ -126,9 +120,8 @@ export function DayPlanCard({ title, markdown }: DayPlanCardProps) {
         </div>
       </div>
 
-      {/* Divider */}
+      {/* Divider + Markdown content */}
       <div className="border-t border-slate-800/60 pt-3">
-        {/* Markdown content */}
         <div className="prose prose-xs sm:prose-sm max-w-none text-slate-200 prose-invert">
           <ReactMarkdown
             components={{
