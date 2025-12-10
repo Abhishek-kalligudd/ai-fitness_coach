@@ -1,6 +1,5 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
 import {
   User,
   Activity,
@@ -34,129 +33,133 @@ interface ProfileInfoCardProps {
 
 export function ProfileInfoCard({ userProfile }: ProfileInfoCardProps) {
   return (
-    <Card
-      className="
-        bg-white rounded-3xl shadow-xl 
-        hover:shadow-3xl 
-        transition-all duration-500 
-        hover:-translate-y-1 
-        overflow-hidden
-      "
-    >
+    <div className="space-y-6">
       {/* HEADER */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white p-8 flex items-center gap-4">
-        <div className="bg-white/20 p-4 rounded-full">
-          <User className="w-10 h-10 text-white" />
+      <div className="flex items-start gap-4 border-b border-slate-800/80 pb-4">
+        <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/40">
+          <User className="w-6 h-6 text-white" />
         </div>
 
-        <div>
-          <h1 className="text-4xl font-extrabold tracking-wide">
-            {userProfile.name}&apos;s Fitness Plan
+        <div className="flex-1 min-w-0">
+          <h1 className="text-lg sm:text-xl font-semibold text-slate-100 truncate">
+            {userProfile.name}&apos;s Fitness Profile
           </h1>
-          <p className="text-blue-100 text-lg">
-            Personalized 7-day workout & nutrition strategy
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            Personalized 7-day workout &amp; nutrition plan for{" "}
+            <span className="font-medium text-slate-200">{userProfile.goal}</span> ·{" "}
+            <span className="font-medium text-slate-200">{userProfile.level}</span> ·{" "}
+            <span className="font-medium text-slate-200">{userProfile.location}</span>
           </p>
         </div>
       </div>
 
-      {/* MAIN CONTENT */}
-      <div className="p-8 space-y-10">
-
-        {/* TOP GRID */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-
-          <InfoBox
-            title="Age"
-            value={userProfile.age}
-            color="blue"
-            Icon={Activity}
-          />
-
-          <InfoBox
-            title="Height"
-            value={`${userProfile.height} cm`}
-            color="indigo"
-            Icon={Ruler}
-          />
-
-          <InfoBox
-            title="Weight"
-            value={`${userProfile.weight} kg`}
-            color="purple"
-            Icon={Weight}
-          />
-
-          <InfoBox
-            title="Goal"
-            value={userProfile.goal}
-            color="pink"
-            Icon={Trophy}
-          />
-        </div>
-
-        {/* DETAILS GRID */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-
-          <DetailItem label="Gender" value={userProfile.gender} Icon={User} />
-          <DetailItem label="Experience" value={userProfile.level} Icon={Flame} />
-          <DetailItem label="Location" value={userProfile.location} Icon={MapPin} />
-          <DetailItem label="Diet" value={userProfile.diet} Icon={Salad} />
-
-          <DetailItem
-            label="Stress Level"
-            value={userProfile.stressLevel || "Normal"}
-            Icon={HeartPulse}
-          />
-
-          {userProfile.medicalHistory && (
-            <DetailItem
-              label="Medical History"
-              value={userProfile.medicalHistory}
-              Icon={ShieldAlert}
-            />
-          )}
-        </div>
+      {/* TOP GRID */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <InfoBox
+          title="Age"
+          value={userProfile.age.toString()}
+          accent="from-sky-500 to-indigo-500"
+          Icon={Activity}
+        />
+        <InfoBox
+          title="Height"
+          value={`${userProfile.height} cm`}
+          accent="from-indigo-500 to-violet-500"
+          Icon={Ruler}
+        />
+        <InfoBox
+          title="Weight"
+          value={`${userProfile.weight} kg`}
+          accent="from-violet-500 to-fuchsia-500"
+          Icon={Weight}
+        />
+        <InfoBox
+          title="Goal"
+          value={userProfile.goal}
+          accent="from-emerald-500 to-teal-500"
+          Icon={Trophy}
+        />
       </div>
-    </Card>
+
+      {/* DETAILS GRID */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+        <DetailItem label="Gender" value={userProfile.gender} Icon={User} />
+        <DetailItem label="Experience" value={userProfile.level} Icon={Flame} />
+        <DetailItem label="Location" value={userProfile.location} Icon={MapPin} />
+        <DetailItem label="Diet" value={userProfile.diet} Icon={Salad} />
+        <DetailItem
+          label="Stress Level"
+          value={userProfile.stressLevel || "Normal"}
+          Icon={HeartPulse}
+        />
+
+        {userProfile.medicalHistory && (
+          <DetailItem
+            label="Medical History"
+            value={userProfile.medicalHistory}
+            Icon={ShieldAlert}
+            emphasize
+          />
+        )}
+      </div>
+    </div>
   );
 }
 
 /* SMALL REUSABLE COMPONENTS */
 
-function InfoBox({ title, value, color, Icon }: any) {
-  const colorMap: any = {
-    blue: "border-blue-500 bg-blue-50 text-blue-700",
-    indigo: "border-indigo-500 bg-indigo-50 text-indigo-700",
-    purple: "border-purple-500 bg-purple-50 text-purple-700",
-    pink: "border-pink-500 bg-pink-50 text-pink-700",
-  };
+interface InfoBoxProps {
+  title: string;
+  value: string;
+  accent: string; // gradient tailwind class
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+}
 
+function InfoBox({ title, value, accent, Icon }: InfoBoxProps) {
   return (
-    <div
-      className={`
-        p-4 rounded-xl border-l-8 
-        ${colorMap[color]} 
-        shadow-sm hover:shadow-md 
-        transition-all duration-300
-      `}
-    >
-      <div className="flex items-center gap-2 mb-1">
-        <Icon className="w-5 h-5" />
-        <p className="text-sm opacity-70">{title}</p>
+    <div className="rounded-2xl border border-slate-800 bg-slate-950/70 px-3 py-3 sm:px-4 sm:py-3.5 flex flex-col gap-1.5 shadow-sm">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          <Icon className="w-4 h-4 text-slate-300" />
+          <p className="text-[11px] sm:text-xs text-slate-400 font-medium">
+            {title}
+          </p>
+        </div>
+        <div
+          className={`
+            h-6 w-6 rounded-xl bg-gradient-to-tr ${accent}
+            opacity-80
+          `}
+        />
       </div>
-      <p className="text-2xl font-bold">{value}</p>
+      <p className="text-sm sm:text-base font-semibold text-slate-100">
+        {value}
+      </p>
     </div>
   );
 }
 
-function DetailItem({ label, value, Icon }: any) {
+interface DetailItemProps {
+  label: string;
+  value: string;
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  emphasize?: boolean;
+}
+
+function DetailItem({ label, value, Icon, emphasize }: DetailItemProps) {
   return (
-    <div className="bg-gray-50 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-      <div className="flex items-center gap-2 mb-1 text-gray-600 font-semibold">
-        <Icon className="w-5 h-5 text-gray-500" />
+    <div className="rounded-2xl border border-slate-800 bg-slate-950/60 px-3 py-3 sm:px-4 sm:py-3.5 flex flex-col gap-1.5">
+      <div className="flex items-center gap-1.5 text-slate-400 text-[11px] sm:text-xs font-medium">
+        <Icon className="w-3.5 h-3.5 text-slate-500" />
         <span>{label}</span>
       </div>
-      <p className="text-gray-900 font-medium">{value}</p>
+      <p
+        className={`text-xs sm:text-sm ${
+          emphasize ? "text-amber-300 font-semibold" : "text-slate-100 font-medium"
+        }`}
+      >
+        {value}
+      </p>
     </div>
   );
 }

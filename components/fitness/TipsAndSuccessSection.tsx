@@ -1,108 +1,102 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
+import React from "react";
 import ReactMarkdown from "react-markdown";
-import {
-  ThumbsUp,
-  Target,
-  Star,
-  ChevronRight,
-  Flame,
-  Sparkles,
-} from "lucide-react";
+import { Sparkles, Target, Star, ChevronRight } from "lucide-react";
 
 interface TipsAndSuccessSectionProps {
   markdown: string;
 }
 
 export function TipsAndSuccessSection({ markdown }: TipsAndSuccessSectionProps) {
-  if (!markdown.trim()) return null;
+  if (!markdown || !markdown.trim()) return null;
 
   return (
-    <Card
-      className="
-        bg-white rounded-3xl shadow-xl 
-        hover:shadow-3xl hover:-translate-y-1 
-        transition-all duration-500 
-        p-10 mb-10 
-        border border-gray-100
-      "
-    >
-      {/* TITLE BAR */}
-      <div className="flex items-center gap-3 mb-8 pb-5 border-b border-gray-200">
-        <Sparkles className="w-7 h-7 text-purple-600 animate-pulse" />
-        <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-          Tips & Success Boosters
-        </h2>
+    <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-3 sm:p-4 shadow-sm">
+      {/* small header inside accordion */}
+      <div className="flex items-start sm:items-center gap-3 mb-3">
+        <div className="h-9 w-9 rounded-lg bg-gradient-to-tr from-violet-500 to-indigo-500 flex items-center justify-center shadow-md shrink-0">
+          <Sparkles className="w-4 h-4 text-white" />
+        </div>
+
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-300">
+            Tips & Success Boosters
+          </p>
+          <p className="text-[11px] sm:text-xs text-slate-500">
+            Practical habits, quick wins, and safety notes tailored for your plan.
+          </p>
+        </div>
       </div>
 
-      {/* MARKDOWN CONTENT */}
-      <div className="prose prose-lg md:prose-xl max-w-none text-gray-700 leading-relaxed">
+      <div className="prose prose-sm max-w-none text-slate-200 prose-invert">
         <ReactMarkdown
           components={{
+            h1: ({ ...props }) => (
+              <h1 className="text-lg sm:text-xl font-semibold text-amber-300 mb-2 flex items-center gap-2">
+                <Target className="w-4 h-4 text-amber-300" />
+                {props.children}
+              </h1>
+            ),
+
             h2: ({ ...props }) => (
-              <h2
-                className="
-                  text-4xl font-bold mt-8 mb-4 
-                  text-indigo-700 flex items-center gap-3
-                "
-              >
-                <Target className="w-6 h-6 text-indigo-500" />
+              <h2 className="text-sm sm:text-base font-semibold text-slate-100 mb-2 flex items-center gap-2">
+                <Star className="w-4 h-4 text-emerald-300" />
                 {props.children}
               </h2>
             ),
 
-            h3: ({ ...props }) => (
-              <h3
-                className="
-                  text-3xl font-semibold mt-6 mb-3 text-gray-800 
-                  flex items-center gap-2
-                "
-              >
-                <Star className="w-5 h-5 text-yellow-500" />
-                {props.children}
-              </h3>
-            ),
-
             p: ({ ...props }) => (
-              <p className="mb-5 text-gray-800 text-lg">{props.children}</p>
+              <p className="mb-2 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                {props.children}
+              </p>
             ),
 
             ul: ({ ...props }) => (
-              <ul className="mb-6 space-y-3 pl-6 border-l-4 border-purple-300">
+              <ul className="mb-2 pl-4 space-y-1 list-none">
                 {props.children}
               </ul>
             ),
 
             ol: ({ ...props }) => (
-              <ol className="mb-6 space-y-3 pl-6 border-l-4 border-indigo-300">
+              <ol className="mb-2 pl-4 space-y-1 list-decimal">
                 {props.children}
               </ol>
             ),
 
             li: ({ ...props }) => (
-              <li className="flex items-start gap-3 text-gray-800">
-                <ChevronRight className="w-4 h-4 text-purple-600 mt-1" />
+              <li className="flex items-start gap-2 text-slate-200 text-xs sm:text-sm">
+                <ChevronRight className="w-4 h-4 text-violet-400 mt-1 flex-shrink-0" />
                 <span>{props.children}</span>
               </li>
             ),
 
             blockquote: ({ ...props }) => (
-              <blockquote
-                className="
-                  bg-purple-50 border-l-8 border-purple-500 
-                  px-6 py-4 italic 
-                  rounded-xl shadow-sm mb-6 text-gray-800
-                "
-              >
+              <blockquote className="border-l-4 border-violet-500/40 bg-slate-900/70 px-3 py-2 italic rounded-md mb-2 text-slate-200 text-sm">
                 {props.children}
               </blockquote>
+            ),
+
+            strong: ({ ...props }) => (
+              <strong className="font-semibold text-amber-300">{props.children}</strong>
+            ),
+
+            code: ({ ...props }) => (
+              <code className="bg-slate-900/80 text-amber-300 px-1 rounded text-[11px]">
+                {props.children}
+              </code>
+            ),
+
+            pre: ({ ...props }) => (
+              <pre className="bg-slate-900/70 rounded-md p-2 overflow-x-auto text-xs mb-2">
+                <code>{props.children}</code>
+              </pre>
             ),
           }}
         >
           {markdown}
         </ReactMarkdown>
       </div>
-    </Card>
+    </div>
   );
 }

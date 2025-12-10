@@ -1,379 +1,349 @@
-"use client";
-
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+// app/page.tsx
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+  Dumbbell,
+  Sparkles,
+  Brain,
+  Mic,
+  Image as ImageIcon,
+  FileText,
+  ArrowRight,
+  Quote,
+} from "lucide-react";
 
-import { Dumbbell, Sparkles } from "lucide-react";
-
-// SCHEMA (unchanged)
-const fitnessFormSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  age: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 1 && Number(val) <= 120, "Age must be between 1 and 120").transform(val => Number(val)),
-  height: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 1, "Height must be valid").transform(val => Number(val)),
-  weight: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 1, "Weight must be valid").transform(val => Number(val)),
-  gender: z.enum(["Male", "Female", "Other"]),
-  goal: z.enum(["Weight Loss", "Muscle Gain", "Maintenance"]),
-  level: z.enum(["Beginner", "Intermediate", "Advanced"]),
-  location: z.enum(["Home", "Gym", "Outdoor"]),
-  diet: z.enum(["Veg", "Non-Veg", "Vegan", "Eggitarian", "No Preference"]),
-  medicalHistory: z.string().optional(),
-  stressLevel: z.string().optional(),
-});
-
-type FitnessFormData = z.infer<typeof fitnessFormSchema>;
-
-export default function FitnessFormPage() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const form = useForm<any>({
-    resolver: zodResolver(fitnessFormSchema),
-    defaultValues: {
-      name: "",
-      age: "",
-      height: "",
-      weight: "",
-      gender: undefined,
-      goal: undefined,
-      level: undefined,
-      location: undefined,
-      diet: undefined,
-      medicalHistory: "",
-      stressLevel: "",
-    },
-  });
-
-  async function onSubmit(data: any) {
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/generate-plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        alert(result.error || "Failed to generate plan");
-        setIsLoading(false);
-        return;
-      }
-
-      localStorage.setItem(
-        "fitnessplan",
-        JSON.stringify({
-          userProfile: data,
-          plan: result.plan,
-        })
-      );
-
-      router.push("/results");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate plan. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
+export default function LandingPage() {
   return (
-    <div
-      className="
-        min-h-screen 
-        bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-50
-        flex flex-col items-center justify-center
-        px-6 py-10
-      "
-    >
-      {/* HEADER */}
-      <div className="mb-10 text-center animate-fadeIn">
-        <div className="flex justify-center mb-3">
-          <Dumbbell className="w-12 h-12 text-indigo-600 animate-pulse" />
-        </div>
-        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
-          AI Fitness Planner
-        </h1>
-        <p className="text-gray-600 mt-2 max-w-sm mx-auto">
-          Get a personalized workout & nutrition plan powered by AI.
-        </p>
-      </div>
-
-      {/* FORM CARD */}
-      <div
-        className="
-          w-full max-w-xl 
-          bg-white/80 backdrop-blur-xl 
-          shadow-xl rounded-3xl 
-          p-8 sm:p-10 
-          border border-white/40
-          animate-fadeInSlow
-        "
-      >
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            
-            {/* Name */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-semibold">Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="John Doe"
-                      {...field}
-                      className="rounded-xl focus:ring-indigo-500"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Age / Height / Weight */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="age"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">Age</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="25" {...field} className="rounded-xl" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="height"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">Height (cm)</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="175" {...field} className="rounded-xl" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="weight"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">Weight (kg)</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="70" {...field} className="rounded-xl" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+      {/* NAVBAR */}
+      <header className="w-full border-b border-slate-800/60 backdrop-blur sticky top-0 z-30 bg-slate-950/70">
+        <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          {/* Left: Logo */}
+          <Link href="/" className="flex items-center gap-2">
+            <div className="h-9 w-9 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/40">
+              <Dumbbell className="h-5 w-5" />
             </div>
-
-            {/* Gender / Goal */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="gender"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">Gender</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || ""}>
-                      <FormControl>
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder="Select gender" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Male">Male</SelectItem>
-                        <SelectItem value="Female">Female</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="goal"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">Fitness Goal</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || ""}>
-                      <FormControl>
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder="Select goal" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Weight Loss">Weight Loss</SelectItem>
-                        <SelectItem value="Muscle Gain">Muscle Gain</SelectItem>
-                        <SelectItem value="Maintenance">Maintenance</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <div className="flex flex-col leading-tight">
+              <span className="font-semibold text-base sm:text-lg">
+                FlexAI Coach
+              </span>
+              <span className="text-[11px] sm:text-xs text-slate-400">
+                Your personal AI fitness mentor
+              </span>
             </div>
+          </Link>
 
-            {/* Level / Location */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="level"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">Experience Level</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || ""}>
-                      <FormControl>
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder="Select level" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Beginner">Beginner</SelectItem>
-                        <SelectItem value="Intermediate">Intermediate</SelectItem>
-                        <SelectItem value="Advanced">Advanced</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">Workout Location</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || ""}>
-                      <FormControl>
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder="Select location" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Home">Home</SelectItem>
-                        <SelectItem value="Gym">Gym</SelectItem>
-                        <SelectItem value="Outdoor">Outdoor</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Diet */}
-            <FormField
-              control={form.control}
-              name="diet"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-semibold">Dietary Preference</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
-                    <FormControl>
-                      <SelectTrigger className="rounded-xl">
-                        <SelectValue placeholder="Select diet" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Veg">Veg</SelectItem>
-                      <SelectItem value="Non-Veg">Non-Veg</SelectItem>
-                      <SelectItem value="Vegan">Vegan</SelectItem>
-                      <SelectItem value="Eggitarian">Eggitarian</SelectItem>
-                      <SelectItem value="No Preference">No Preference</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Medical History */}
-            <FormField
-              control={form.control}
-              name="medicalHistory"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-semibold">Medical History (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Any injuries or conditions?"
-                      className="rounded-xl resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Stress Level */}
-            <FormField
-              control={form.control}
-              name="stressLevel"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-semibold">Stress Level (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Low / Medium / High" {...field} className="rounded-xl" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="
-                w-full 
-                bg-indigo-600 hover:bg-indigo-700 
-                text-white 
-                text-lg py-4 
-                rounded-xl shadow-lg 
-                transition-all
-              "
+          {/* Right: Theme toggle + auth buttons */}
+          <div className="flex items-center gap-3">
+            {/* Simple placeholder theme toggle (wire up later) */}
+            <button
+              type="button"
+              className="inline-flex items-center justify-center h-9 w-9 rounded-full border border-slate-700 bg-slate-900/60 hover:bg-slate-800 transition"
+              aria-label="Toggle theme"
             >
-              {isLoading ? "Generating..." : "Generate Plan"}
+              <span className="text-lg">🌓</span>
+            </button>
+
+            <Button
+              variant="ghost"
+              className="hidden sm:inline-flex text-slate-200 hover:text-white hover:bg-slate-800/60"
+            >
+              Sign in
             </Button>
-          </form>
-        </Form>
+
+            <Button className="bg-indigo-500 hover:bg-indigo-600 text-sm sm:text-base shadow-lg shadow-indigo-500/40">
+              Sign up
+            </Button>
+          </div>
+        </nav>
+      </header>
+
+      {/* MAIN CONTENT */}
+      <main className="flex-1">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20 space-y-16 lg:space-y-24">
+          {/* HERO SECTION */}
+          <section className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            {/* Left: Text */}
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/40 bg-indigo-500/10 px-3 py-1 text-xs sm:text-sm text-indigo-200">
+                <Sparkles className="h-4 w-4" />
+                <span>AI-powered fitness + nutrition in one place</span>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight">
+                💪 AI Fitness Coach
+                <span className="block text-indigo-400">
+                  Personalized workout & diet plans in seconds.
+                </span>
+              </h1>
+
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl">
+                FlexAI Coach builds a 7-day workout and diet plan tailored to
+                your body, goals, and lifestyle. No templates. No generic
+                advice. Just smart, adaptive coaching powered by AI.
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <Link href="/create-plan">
+                  <Button className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-sm sm:text-base px-6 py-5 gap-2 shadow-lg shadow-indigo-500/40">
+                    Get your free plan
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto border-slate-600 bg-slate-900/60 hover:bg-slate-800/80 text-slate-100 text-sm sm:text-base"
+                >
+                  Watch demo (coming soon)
+                </Button>
+              </div>
+
+              {/* Hero stats */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4">
+                <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+                  <p className="text-xs text-slate-400">Plan Type</p>
+                  <p className="text-base sm:text-lg font-semibold">
+                    Workout + Diet
+                  </p>
+                </div>
+                <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+                  <p className="text-xs text-slate-400">Powered by</p>
+                  <p className="text-base sm:text-lg font-semibold">
+                    LLM + AI Voice
+                  </p>
+                </div>
+                <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-3 hidden sm:block">
+                  <p className="text-xs text-slate-400">Export</p>
+                  <p className="text-base sm:text-lg font-semibold">PDF &amp; local</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Mock app preview / illustration */}
+            <div className="relative">
+              <div className="absolute -top-6 -right-2 sm:-right-8 h-24 w-24 sm:h-32 sm:w-32 bg-indigo-500/40 rounded-full blur-3xl" />
+              <div className="absolute bottom-0 -left-4 h-24 w-24 sm:h-32 sm:w-32 bg-violet-500/40 rounded-full blur-3xl" />
+
+              <div className="relative rounded-3xl border border-slate-800 bg-slate-900/80 backdrop-blur p-4 sm:p-5 shadow-2xl shadow-black/50">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="space-y-1">
+                    <p className="text-xs text-slate-400">Current user</p>
+                    <p className="text-sm sm:text-base font-semibold">
+                      John • Muscle Gain
+                    </p>
+                  </div>
+                  <span className="text-[11px] px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/40">
+                    Plan ready
+                  </span>
+                </div>
+
+                <div className="space-y-3 text-xs sm:text-sm">
+                  <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium flex items-center gap-2">
+                        <Brain className="h-4 w-4 text-indigo-300" />
+                        AI Plan Summary
+                      </span>
+                      <span className="text-[11px] text-slate-400">
+                        7-day split
+                      </span>
+                    </div>
+                    <p className="text-slate-300 text-xs">
+                      Full-body strength + vegetarian muscle gain diet,
+                      adjusted for home workouts and recovery.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-3">
+                      <p className="text-[11px] text-slate-400 mb-1">
+                        Workout
+                      </p>
+                      <p className="text-xs font-medium mb-1">
+                        Day 1 • Full-body A
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        Squats, push-ups, lunges, core &amp; mobility.
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-3">
+                      <p className="text-[11px] text-slate-400 mb-1">Diet</p>
+                      <p className="text-xs font-medium mb-1">
+                        High-protein veg
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        Oats, tofu, lentils, nuts &amp; leafy greens.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 pt-1">
+                    <button className="flex items-center justify-center gap-1 rounded-full border border-slate-700 bg-slate-900/80 px-2 py-1 text-[11px] hover:bg-slate-800">
+                      <Mic className="h-3 w-3" />
+                      Read plan
+                    </button>
+                    <button className="flex items-center justify-center gap-1 rounded-full border border-slate-700 bg-slate-900/80 px-2 py-1 text-[11px] hover:bg-slate-800">
+                      <ImageIcon className="h-3 w-3" />
+                      View exercise
+                    </button>
+                    <button className="flex items-center justify-center gap-1 rounded-full border border-slate-700 bg-slate-900/80 px-2 py-1 text-[11px] hover:bg-slate-800">
+                      <FileText className="h-3 w-3" />
+                      Export
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* FEATURES SECTION */}
+          <section className="space-y-6">
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+              What FlexAI Coach can do for you
+            </h2>
+            <p className="text-sm sm:text-base text-slate-300 max-w-2xl">
+              From smart plans to voice guidance and visuals — your fitness
+              experience feels like a real coach, not just another static app.
+            </p>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <FeatureCard
+                icon={<Brain className="h-5 w-5 text-indigo-300" />}
+                title="AI-personalized workout plans"
+                description="7-day routines with exercises, sets, reps, and rest times tuned to your goal, experience level, and location (home, gym, or outdoor)."
+              />
+              <FeatureCard
+                icon={<Dumbbell className="h-5 w-5 text-emerald-300" />}
+                title="Smart diet planning"
+                description="Breakfast, lunch, snack, and dinner tailored to your diet preference — veg, non-veg, vegan, or keto."
+              />
+              <FeatureCard
+                icon={<Mic className="h-5 w-5 text-pink-300" />}
+                title="Voice-powered coaching"
+                description="Let the app read out your plan so you can follow workouts hands-free — perfect for gym or home sessions."
+              />
+              <FeatureCard
+                icon={<ImageIcon className="h-5 w-5 text-amber-300" />}
+                title="AI exercise & meal images"
+                description="Tap an exercise or meal to see an AI-generated visual of how it looks or how it’s plated."
+              />
+              <FeatureCard
+                icon={<FileText className="h-5 w-5 text-sky-300" />}
+                title="Export & save"
+                description="Export your plan as PDF, save it locally, and regenerate whenever you want to tweak your goals."
+              />
+              <FeatureCard
+                icon={<Sparkles className="h-5 w-5 text-violet-300" />}
+                title="Daily motivation"
+                description="Fresh AI-generated motivational lines to keep you consistent and accountable."
+              />
+            </div>
+          </section>
+
+          {/* HOW IT WORKS */}
+          <section className="space-y-6">
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+              How it works
+            </h2>
+
+            <div className="grid md:grid-cols-3 gap-5">
+              <StepCard
+                step="01"
+                title="Tell us about yourself"
+                description="Fill in your age, height, weight, goal, fitness level, workout location, diet, and optional medical history."
+              />
+              <StepCard
+                step="02"
+                title="AI builds your plan"
+                description="Our AI generates a fully personalized 7-day workout + diet plan — no templates, no copy-paste."
+              />
+              <StepCard
+                step="03"
+                title="Follow, listen, or export"
+                description="View your plan, listen to it via voice, see exercise images, and export to PDF or save locally."
+              />
+            </div>
+          </section>
+
+          {/* MOTIVATION / QUOTE */}
+          <section className="rounded-3xl border border-slate-800 bg-slate-900/80 px-5 py-6 sm:px-7 sm:py-8 flex flex-col sm:flex-row items-start sm:items-center gap-5">
+            <div className="h-10 w-10 rounded-2xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/50">
+              <Quote className="h-5 w-5 text-indigo-300" />
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm sm:text-base text-slate-200 italic">
+                “You don’t need more motivation. You need a system that makes
+                staying consistent easier.”
+              </p>
+              <p className="text-xs sm:text-sm text-slate-400">
+                Start today with a plan that’s designed around your life, not
+                someone else’s.
+              </p>
+            </div>
+          </section>
+
+          {/* FINAL CTA */}
+          <section className="text-center space-y-4">
+            <h3 className="text-xl sm:text-2xl font-semibold">
+              Ready to see your own AI-powered plan?
+            </h3>
+            <p className="text-sm sm:text-base text-slate-300 max-w-md mx-auto">
+              It takes less than a minute. Answer a few questions and let FlexAI
+              Coach do the heavy lifting.
+            </p>
+            <Link href="/create-plan">
+              <Button className="mt-1 bg-indigo-500 hover:bg-indigo-600 px-8 py-5 text-sm sm:text-base shadow-lg shadow-indigo-500/40">
+                Start free — generate my plan
+              </Button>
+            </Link>
+          </section>
+        </div>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="border-t border-slate-800/60 py-4 text-center text-xs text-slate-500">
+        Built with ❤️ for smarter, sustainable fitness.
+      </footer>
+    </div>
+  );
+}
+
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 sm:p-5 flex flex-col gap-2 hover:border-indigo-500/70 hover:bg-slate-900 transition">
+      <div className="h-9 w-9 rounded-xl bg-slate-900/90 border border-slate-700 flex items-center justify-center mb-1">
+        {icon}
       </div>
+      <h3 className="text-sm sm:text-base font-semibold">{title}</h3>
+      <p className="text-xs sm:text-sm text-slate-300">{description}</p>
+    </div>
+  );
+}
+
+function StepCard({
+  step,
+  title,
+  description,
+}: {
+  step: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 sm:p-5 flex flex-col gap-2">
+      <span className="text-xs font-mono text-slate-400">Step {step}</span>
+      <h3 className="text-sm sm:text-base font-semibold">{title}</h3>
+      <p className="text-xs sm:text-sm text-slate-300">{description}</p>
     </div>
   );
 }

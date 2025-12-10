@@ -42,6 +42,7 @@ Profile:
 
 OUTPUT FORMAT (VERY IMPORTANT):
 Do NOT deviate from this format ever never. Follow it EXACTLY.
+Dont add anything from your side.
 Return the plan ONLY in clean Markdown using EXACTLY this structure:
 
 # Personalized Fitness Plan for ${name}
