@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// import Link from "next/link";
+import { jsPDF } from "jspdf";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -166,27 +166,21 @@ export default function ResultsPage() {
                 New plan
               </Button>
               <Button
-                onClick={() => {
-                  const element = document.createElement("a");
-                  element.setAttribute(
-                    "href",
-                    "data:text/plain;charset=utf-8," +
-                      encodeURIComponent(fitnessData.plan)
-                  );
-                  element.setAttribute(
-                    "download",
-                    `${fitnessData.userProfile.name}-fitness-plan.txt`
-                  );
-                  element.style.display = "none";
-                  document.body.appendChild(element);
-                  element.click();
-                  document.body.removeChild(element);
-                }}
-                className="bg-indigo-500 hover:bg-indigo-600 text-xs sm:text-sm gap-1.5 shadow-lg shadow-indigo-500/40"
-              >
-                <Download className="h-4 w-4" />
-                Download plan
-              </Button>
+  onClick={() => {
+    const doc = new jsPDF();
+    const text = fitnessData.plan;
+
+    const lines = doc.splitTextToSize(text, 180);
+    doc.text(lines, 10, 10);
+
+    doc.save(`${fitnessData.userProfile.name}-fitness-plan.pdf`);
+  }}
+  className="bg-indigo-500 hover:bg-indigo-600 text-xs sm:text-sm gap-1.5 shadow-lg shadow-indigo-500/40"
+>
+  <Download className="h-4 w-4" />
+  Download plan
+</Button>
+
             </div>
           </div>
 
