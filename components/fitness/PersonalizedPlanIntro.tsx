@@ -2,7 +2,15 @@
 
 import { Card } from "@/components/ui/card";
 import ReactMarkdown from "react-markdown";
-import { Sparkles, Flame, CheckCircle2, Circle } from "lucide-react";
+import {
+  Sparkles,
+  Flame,
+  CheckCircle2,
+  Circle,
+  Volume2,
+} from "lucide-react";
+import { useMemo } from "react";
+import { useSpeech } from "@/components/SpeechProvider";
 
 interface PersonalizedPlanIntroProps {
   markdown: string;
@@ -10,6 +18,64 @@ interface PersonalizedPlanIntroProps {
 
 export function PersonalizedPlanIntro({ markdown }: PersonalizedPlanIntroProps) {
   if (!markdown || !markdown.trim()) return null;
+
+  const { speak, pause, resume, status, currentText, supported } = useSpeech();
+
+  // Build the text to read for the intro
+  const speechText = useMemo(() => {
+  if (!markdown) return "Overview and introduction.";
+
+  const plain = markdown
+    // New lines → sentence pauses
+    .replace(/\n+/g, ". ")
+
+    // Remove markdown symbols
+    .replace(/[#>*`*_|\[\]\(\)]/g, " ")
+
+    // Treat bullet dashes as breaks
+    .replace(/\s-\s/g, ". ")
+
+    // Collapse whitespace
+    .replace(/\s+/g, " ")
+
+    // Prevent multiple dots
+    .replace(/\.{2,}/g, ".")
+
+    .trim();
+
+  return `Overview and introduction. ${plain}`;
+}, [markdown]);
+
+  const isThisSection = currentText === speechText;
+  const isPlayingThisSection = isThisSection && status === "playing";
+  const isPausedThisSection = isThisSection && status === "paused";
+
+  const handleReadClick = () => {
+    if (!supported) return;
+
+    if (isPlayingThisSection) {
+      // currently reading this intro → pause
+      pause();
+      return;
+    }
+
+    if (isPausedThisSection) {
+      // paused on this intro → resume
+      resume();
+      return;
+    }
+
+    // otherwise start reading this intro (also cancels anything else)
+    speak(speechText);
+  };
+
+  const buttonLabel = !supported
+    ? "Not supported"
+    : isPlayingThisSection
+    ? "Pause"
+    : isPausedThisSection
+    ? "Resume"
+    : "Read";
 
   return (
     <Card
@@ -21,19 +87,42 @@ export function PersonalizedPlanIntro({ markdown }: PersonalizedPlanIntroProps) 
         shadow-sm
       "
     >
-      {/* small header badge inside section */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center shadow-md">
-          <Sparkles className="w-4 h-4 text-white" />
+      {/* HEADER ROW: badge + text + read button */}
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center shadow-md">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-300">
+              Overview &amp; Introduction
+            </p>
+            <p className="text-[11px] text-slate-500">
+              A quick summary of your AI-personalized plan.
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-300">
-            Overview &amp; Introduction
-          </p>
-          <p className="text-[11px] text-slate-500">
-            A quick summary of your AI-personalized plan.
-          </p>
-        </div>
+
+        {/* Read button */}
+        <button
+          type="button"
+          disabled={!supported}
+          onClick={handleReadClick}
+          className="
+            inline-flex items-center justify-center gap-1.5
+            rounded-md px-2.5 py-1.5
+            text-[11px] sm:text-xs
+            bg-slate-900/70 border border-slate-800
+            hover:bg-slate-900
+            text-slate-200
+            disabled:opacity-50 disabled:cursor-not-allowed
+          "
+          aria-label="Listen to overview and introduction"
+          title="Read overview"
+        >
+          <Volume2 className="w-3.5 h-3.5" />
+          <span>{buttonLabel}</span>
+        </button>
       </div>
 
       {/* MARKDOWN CONTENT */}

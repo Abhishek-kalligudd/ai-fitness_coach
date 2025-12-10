@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { SpeechProvider } from "@/components/SpeechProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,9 +35,9 @@ export default function RootLayout({
           transition-colors duration-300
         `}
       >
-        {/* GLOBAL THEME PROVIDER */}
+        {/* GLOBAL THEME PROVIDER + GLOBAL SPEECH PROVIDER */}
         <ThemeProvider>
-          {children}
+          <SpeechProvider>{children}</SpeechProvider>
         </ThemeProvider>
       </body>
     </html>

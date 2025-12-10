@@ -1,15 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import {
   Sparkles,
   CheckCircle2,
   Flame,
   Circle,
-  Mic,
+  Volume2,
   Image as ImageIcon,
 } from "lucide-react";
+import { useSpeech } from "@/components/SpeechProvider";
 
 interface DayPlanCardProps {
   title: string;
@@ -17,6 +18,69 @@ interface DayPlanCardProps {
 }
 
 export function DayPlanCard({ title, markdown }: DayPlanCardProps) {
+  const { speak, pause, resume, status, currentText, supported } = useSpeech();
+
+  // Build the text we want to read for this day
+    // Build the text we want to read for this day
+  const speechText = useMemo(() => {
+    if (!markdown) return title;
+
+    const cleaned = markdown
+      // Turn newlines into sentence-like pauses
+      .replace(/\n+/g, ". ")
+
+      // Remove markdown control symbols
+      .replace(/[#>*`*_|\[\]\(\)]/g, " ")
+
+      // Treat " - " like a break (common in bullet lists)
+      .replace(/\s-\s/g, ". ")
+
+      // Collapse whitespace
+      .replace(/\s+/g, " ")
+
+      // Avoid weird multiple dots
+      .replace(/\.{2,}/g, ".")
+
+      .trim();
+
+    // Avoid double dots if title already ends with "."
+    const safeTitle = title.replace(/\.+$/, "");
+
+    return `${safeTitle}. ${cleaned}`;
+  }, [title, markdown]);
+
+
+  const isThisDay = currentText === speechText;
+  const isPlayingThisDay = isThisDay && status === "playing";
+  const isPausedThisDay = isThisDay && status === "paused";
+
+  const handleReadClick = () => {
+    if (!supported) return;
+
+    if (isPlayingThisDay) {
+      // currently reading this day → pause
+      pause();
+      return;
+    }
+
+    if (isPausedThisDay) {
+      // paused on this day → resume
+      resume();
+      return;
+    }
+
+    // otherwise start reading this day's text (also cancels anything else)
+    speak(speechText);
+  };
+
+  const buttonLabel = !supported
+    ? "Not supported"
+    : isPlayingThisDay
+    ? "Pause"
+    : isPausedThisDay
+    ? "Resume"
+    : "Read";
+
   return (
     <div className="w-full rounded-2xl border border-slate-800 bg-slate-950/60 p-3 sm:p-5 shadow-sm">
       {/* Header row: stacks on mobile */}
@@ -40,12 +104,14 @@ export function DayPlanCard({ title, markdown }: DayPlanCardProps) {
         <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-1 sm:mt-0">
           <button
             type="button"
-            className="group inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs sm:text-sm bg-slate-900/70 border border-slate-800 hover:bg-slate-900 w-full sm:w-auto"
+            disabled={!supported}
+            onClick={handleReadClick}
+            className="group inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs sm:text-sm bg-slate-900/70 border border-slate-800 hover:bg-slate-900 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Listen to day plan"
-            title="Read plan"
+            title="Read day plan"
           >
-            <Mic className="w-4 h-4 text-slate-300 group-hover:text-indigo-300" />
-            <span className="text-slate-300">Read</span>
+            <Volume2 className="w-4 h-4 text-slate-300 group-hover:text-indigo-300" />
+            <span className="text-slate-300">{buttonLabel}</span>
           </button>
 
           <button
@@ -106,7 +172,9 @@ export function DayPlanCard({ title, markdown }: DayPlanCardProps) {
                 </li>
               ),
               strong: ({ ...props }) => (
-                <strong className="font-semibold text-indigo-300">{props.children}</strong>
+                <strong className="font-semibold text-indigo-300">
+                  {props.children}
+                </strong>
               ),
               code: ({ ...props }) => (
                 <code className="bg-slate-900/80 text-amber-300 px-1 rounded text-[11px]">
