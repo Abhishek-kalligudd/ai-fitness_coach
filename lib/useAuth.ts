@@ -1,3 +1,4 @@
+// D:\MagicSlides\ai-fitness-coach\lib\useAuth.ts
 "use client";
 
 import { useEffect, useState } from "react";
