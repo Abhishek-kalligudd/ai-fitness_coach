@@ -1,8 +1,11 @@
+// D:\MagicSlides\ai-fitness-coach\app\results\page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import { useAuth } from "@/lib/useAuth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -67,6 +70,7 @@ export default function ResultsPage() {
   const [currentDayTitle, setCurrentDayTitle] = useState("");
   const [workoutItems, setWorkoutItems] = useState<GeneratedItem[]>([]);
   const [mealItems, setMealItems] = useState<GeneratedItem[]>([]);
+  const { user } = useAuth();
 
   useEffect(() => {
     const storedData = localStorage.getItem("fitnessplan");
@@ -202,6 +206,48 @@ export default function ResultsPage() {
     }
   };
 
+  const handleSavePlan = async () => {
+  if (!user) { alert("Please sign in to save your plan."); return; }
+  if (!fitnessData || !parsedPlan) { alert("Plan data is missing."); return; }
+
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) { alert("Session expired. Please sign in again."); return; }
+  const token = session.access_token;
+
+  const safeIntro = parsedPlan.intro ?? "";
+  const safeTips = parsedPlan.tipsAndSuccess ?? "";
+  const safeDays = Array.isArray(parsedPlan.days) ? parsedPlan.days : [];
+
+  const payload = {
+    title: `${fitnessData.userProfile.name || "My"} 7-day Plan`,
+    plan_markdown: fitnessData.plan ?? "",
+    plan_json: { intro: safeIntro, tipsAndSuccess: safeTips, days: safeDays },
+    intro: safeIntro,
+    tips: safeTips,
+  };
+
+  try {
+    const res = await fetch("/api/save-plan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload),
+    });
+
+    const json = await res.json();
+    if (!res.ok) {
+      console.error("Save-plan failed:", json);
+      alert(json.error || json.message || "Failed to save plan.");
+      return;
+    }
+
+    alert("Plan saved successfully!");
+  } catch (err) {
+    console.error("Network / unexpected error saving plan:", err);
+    alert("Unexpected error while saving your plan.");
+  }
+};
+
+
   // LOADING SCREEN ----------------------------------
   if (isLoading) {
     return (
@@ -285,14 +331,18 @@ export default function ResultsPage() {
                   const lines = doc.splitTextToSize(text, 180);
                   doc.text(lines, 10, 10);
 
-                  doc.save(
-                    `${fitnessData.userProfile.name}-fitness-plan.pdf`
-                  );
+                  doc.save(`${fitnessData.userProfile.name}-fitness-plan.pdf`);
                 }}
                 className="bg-indigo-500 hover:bg-indigo-600 text-xs sm:text-sm gap-1.5 shadow-lg shadow-indigo-500/40"
               >
                 <Download className="h-4 w-4" />
                 Download plan
+              </Button>
+              <Button
+                className="bg-green-500 hover:bg-green-600 text-xs sm:text-sm shadow-lg shadow-green-500/40"
+                onClick={handleSavePlan}
+              >
+                Save to My Plans
               </Button>
             </div>
           </div>
