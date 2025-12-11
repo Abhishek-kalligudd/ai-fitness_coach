@@ -3,7 +3,7 @@
 import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Dumbbell, LogOut, User } from "lucide-react";
+import { Dumbbell, LogOut, User, LayoutDashboard } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/lib/useAuth";
@@ -54,8 +54,7 @@ export default function AppNavbar({
     }
   };
 
-  const userInitial =
-    user?.email?.charAt(0)?.toUpperCase() ?? "";
+  const userInitial = user?.email?.charAt(0)?.toUpperCase() ?? "";
 
   return (
     <header className="w-full border-b border-slate-800/60 backdrop-blur sticky top-0 z-30 bg-slate-950/70">
@@ -138,6 +137,16 @@ export default function AppNavbar({
                     >
                       <User size={14} />
                       <span>View profile</span>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      className="flex items-center gap-2 cursor-pointer text-slate-200 focus:text-slate-50"
+                      onClick={() => {
+                        router.push("/dashboard");
+                      }}
+                    >
+                      <LayoutDashboard size={14} />
+                      <span>My Dashboard</span>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem

@@ -13,13 +13,11 @@ import {
 } from "lucide-react";
 import AppNavbar from "@/components/AppNavbar";
 
-
 export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-white">
       {/* NAVBAR */}
       <AppNavbar />
-
 
       {/* MAIN CONTENT */}
       <main className="flex-1">
@@ -48,9 +46,9 @@ export default function LandingPage() {
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <Link href="/create-plan">
+                <Link href="/dashboard">
                   <Button className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-sm sm:text-base px-6 py-5 gap-2 shadow-lg shadow-indigo-500/40">
-                    Get your free plan
+                    My Dashboard
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
@@ -59,7 +57,7 @@ export default function LandingPage() {
                   variant="outline"
                   className="w-full sm:w-auto border-slate-600 bg-slate-900/60 hover:bg-slate-800/80 text-slate-100 text-sm sm:text-base"
                 >
-                  Watch demo (coming soon)
+                  Start Creating A Plan
                 </Button>
               </div>
 
@@ -79,7 +77,9 @@ export default function LandingPage() {
                 </div>
                 <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-3 hidden sm:block">
                   <p className="text-xs text-slate-400">Export</p>
-                  <p className="text-base sm:text-lg font-semibold">PDF &amp; local</p>
+                  <p className="text-base sm:text-lg font-semibold">
+                    PDF &amp; local
+                  </p>
                 </div>
               </div>
             </div>
@@ -114,16 +114,14 @@ export default function LandingPage() {
                       </span>
                     </div>
                     <p className="text-slate-300 text-xs">
-                      Full-body strength + vegetarian muscle gain diet,
-                      adjusted for home workouts and recovery.
+                      Full-body strength + vegetarian muscle gain diet, adjusted
+                      for home workouts and recovery.
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-3">
-                      <p className="text-[11px] text-slate-400 mb-1">
-                        Workout
-                      </p>
+                      <p className="text-[11px] text-slate-400 mb-1">Workout</p>
                       <p className="text-xs font-medium mb-1">
                         Day 1 • Full-body A
                       </p>

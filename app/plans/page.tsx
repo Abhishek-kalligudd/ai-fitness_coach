@@ -1,3 +1,4 @@
+// D:\MagicSlides\ai-fitness-coach\app\plans\page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -5,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/lib/useAuth";
 import { Button } from "@/components/ui/button";
 import AppNavbar from "@/components/AppNavbar";
+import { useRouter } from "next/navigation";
 
 interface Plan {
   id: string;
@@ -20,6 +22,7 @@ export default function PlansPage() {
   const { user, loading } = useAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (!user) return;
@@ -106,12 +109,30 @@ export default function PlansPage() {
                   {new Date(plan.created_at).toLocaleString()}
                 </p>
                 <div className="mt-2">
-                  <details className="text-sm text-slate-700 dark:text-slate-300">
-                    <summary>View Markdown</summary>
-                    <pre className="overflow-x-auto p-2 bg-slate-100 dark:bg-slate-800 rounded mt-1">
-                      {plan.plan_markdown}
-                    </pre>
-                  </details>
+                  <Button
+                    onClick={() => {
+                      const payload = {
+                        userProfile: {}, // later you can add real profile if needed
+                        plan: plan.plan_markdown,
+                        savedPlan: plan,
+                      };
+
+                      console.log(
+                        "[PlansPage] saving to localStorage payload:",
+                        payload
+                      );
+
+                      localStorage.setItem(
+                        "fitnessplan",
+                        JSON.stringify(payload)
+                      );
+
+                      // 👇 ADD THIS QUERY PARAM TRACKER
+                      router.push(`/results?from=plans&planId=${plan.id}`);
+                    }}
+                  >
+                    View Plan
+                  </Button>
                 </div>
               </div>
             ))}

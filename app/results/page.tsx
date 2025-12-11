@@ -6,6 +6,8 @@ import { jsPDF } from "jspdf";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/lib/useAuth";
+import { useSearchParams } from "next/navigation";
+import { fetchProfile } from "@/lib/profileService";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -54,6 +56,8 @@ interface FitnessData {
     stressLevel?: string;
   };
   plan: string;
+
+  savedPlan?: any;
 }
 
 export default function ResultsPage() {
@@ -65,28 +69,71 @@ export default function ResultsPage() {
     string | undefined
   >(undefined);
 
+  const searchParams = useSearchParams();
+  const from = searchParams?.get("from") ?? null;
+
+  const hideProfileCard = from === "plans"; // 👈 TRUE when coming from Plans page
+
   // --- [ADDED] IMAGE GENERATION STATE ---
   const [modalOpen, setModalOpen] = useState(false);
   const [currentDayTitle, setCurrentDayTitle] = useState("");
   const [workoutItems, setWorkoutItems] = useState<GeneratedItem[]>([]);
   const [mealItems, setMealItems] = useState<GeneratedItem[]>([]);
   const { user } = useAuth();
+  const storedData = localStorage.getItem("fitnessplan");
+  const viewingSavedPlan = !!fitnessData?.savedPlan;
 
   useEffect(() => {
     const storedData = localStorage.getItem("fitnessplan");
+    console.log("[ResultsPage] localStorage.raw:", storedData);
+
     if (storedData) {
       try {
-        const data = JSON.parse(storedData) as FitnessData;
+        const data = JSON.parse(storedData);
+        console.log("[ResultsPage] parsed localStorage:", data);
+
+        // If coming from saved plan view:
+        if (data.savedPlan) {
+          const saved = data.savedPlan;
+          console.log("[ResultsPage] detected savedPlan, id:", saved.id);
+
+          const parsed = parsePlanMarkdown(saved.plan_markdown);
+          console.log("[ResultsPage] parsedPlan from savedPlan:", parsed);
+
+          setParsedPlan(parsed);
+
+          setFitnessData({
+            userProfile: {
+              name: saved.title || "Saved Plan",
+              age: 0,
+              height: 0,
+              weight: 0,
+              gender: "",
+              goal: "",
+              level: "",
+              location: "",
+              diet: "",
+            },
+            plan: saved.plan_markdown,
+            savedPlan: saved, // keep this so viewingSavedPlan becomes true
+          });
+
+          // IMPORTANT: clear loading state before returning
+          setIsLoading(false);
+          return;
+        }
+
+        // Original behavior (from fresh generation)
         setFitnessData(data);
-
         const parsed = parsePlanMarkdown(data.plan);
+        console.log("[ResultsPage] parsedPlan from fresh data:", parsed);
         setParsedPlan(parsed);
-
-        console.log("Parsed Plan:", parsed);
       } catch (error) {
         console.error("Failed to parse fitness data:", error);
       }
     }
+
+    // If no stored data or after handling fresh data, clear loading state
     setIsLoading(false);
   }, []);
 
@@ -207,46 +254,77 @@ export default function ResultsPage() {
   };
 
   const handleSavePlan = async () => {
-  if (!user) { alert("Please sign in to save your plan."); return; }
-  if (!fitnessData || !parsedPlan) { alert("Plan data is missing."); return; }
-
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) { alert("Session expired. Please sign in again."); return; }
-  const token = session.access_token;
-
-  const safeIntro = parsedPlan.intro ?? "";
-  const safeTips = parsedPlan.tipsAndSuccess ?? "";
-  const safeDays = Array.isArray(parsedPlan.days) ? parsedPlan.days : [];
-
-  const payload = {
-    title: `${fitnessData.userProfile.name || "My"} 7-day Plan`,
-    plan_markdown: fitnessData.plan ?? "",
-    plan_json: { intro: safeIntro, tipsAndSuccess: safeTips, days: safeDays },
-    intro: safeIntro,
-    tips: safeTips,
-  };
-
-  try {
-    const res = await fetch("/api/save-plan", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify(payload),
-    });
-
-    const json = await res.json();
-    if (!res.ok) {
-      console.error("Save-plan failed:", json);
-      alert(json.error || json.message || "Failed to save plan.");
+    if (!user) {
+      alert("Please sign in to save your plan.");
+      return;
+    }
+    if (!fitnessData || !parsedPlan) {
+      alert("Plan data is missing.");
       return;
     }
 
-    alert("Plan saved successfully!");
-  } catch (err) {
-    console.error("Network / unexpected error saving plan:", err);
-    alert("Unexpected error while saving your plan.");
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      alert("Session expired. Please sign in again.");
+      return;
+    }
+    const token = session.access_token;
+
+    const safeIntro = parsedPlan.intro ?? "";
+    const safeTips = parsedPlan.tipsAndSuccess ?? "";
+    const safeDays = Array.isArray(parsedPlan.days) ? parsedPlan.days : [];
+
+    const payload = {
+      title: `${fitnessData.userProfile.name || "My"} 7-day Plan`,
+      plan_markdown: fitnessData.plan ?? "",
+      plan_json: { intro: safeIntro, tipsAndSuccess: safeTips, days: safeDays },
+      intro: safeIntro,
+      tips: safeTips,
+    };
+
+    try {
+      const res = await fetch("/api/save-plan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        console.error("Save-plan failed:", json);
+        alert(json.error || json.message || "Failed to save plan.");
+        return;
+      }
+
+      alert("Plan saved successfully!");
+    } catch (err) {
+      console.error("Network / unexpected error saving plan:", err);
+      alert("Unexpected error while saving your plan.");
+    }
+  };
+
+
+  const handleGoToProfile = async () => {
+  try {
+    console.log("[ResultsPage] handleGoToProfile: fetching profile...");
+    const profile = await fetchProfile();
+    if (!profile) {
+      alert("No profile found. Please create a profile first.");
+      return;
+    }
+    // Keep same storage key as navbar so /profile can read it
+    localStorage.setItem("userProfileView", JSON.stringify(profile));
+    router.push("/profile");
+  } catch (err: any) {
+    console.error("[ResultsPage] go to profile failed:", err);
+    alert(err?.message || "Failed to fetch profile. Are you signed in?");
   }
 };
-
 
   // LOADING SCREEN ----------------------------------
   if (isLoading) {
@@ -338,12 +416,14 @@ export default function ResultsPage() {
                 <Download className="h-4 w-4" />
                 Download plan
               </Button>
-              <Button
-                className="bg-green-500 hover:bg-green-600 text-xs sm:text-sm shadow-lg shadow-green-500/40"
-                onClick={handleSavePlan}
-              >
-                Save to My Plans
-              </Button>
+              {!viewingSavedPlan && (
+                <Button
+                  className="bg-green-500 hover:bg-green-600 text-xs sm:text-sm shadow-lg shadow-green-500/40"
+                  onClick={handleSavePlan}
+                >
+                  Save to My Plans
+                </Button>
+              )}
             </div>
           </div>
 
@@ -351,11 +431,48 @@ export default function ResultsPage() {
           <div className="grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.8fr)] gap-6 lg:gap-8">
             {/* LEFT: USER PROFILE CARD */}
             <div className="space-y-4">
-              <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-4 sm:p-5 shadow-xl shadow-black/40">
-                <ProfileInfoCard userProfile={fitnessData.userProfile} />
-              </div>
+              {!hideProfileCard ? (
+                <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-4 sm:p-5 shadow-xl shadow-black/40">
+                  <ProfileInfoCard userProfile={fitnessData.userProfile} />
+                </div>
+              ) : (
+                <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-4 sm:p-5 shadow-xl shadow-black/40 flex flex-col items-start gap-4">
+                  <h3 className="text-lg font-semibold text-slate-100">
+                    Saved plan
+                  </h3>
+                  <p className="text-sm text-slate-400">
+                    You’re viewing a saved plan. To edit your profile or update
+                    settings, open your profile page.
+                  </p>
+
+                  <div className="w-full flex items-center gap-3">
+                    <Button
+                      onClick={handleGoToProfile}
+                      className="bg-indigo-500 hover:bg-indigo-600 text-white"
+                    >
+                      Go to profile
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        router.push("/dashboard");
+                      }}
+                      className="ml-2"
+                    >
+                      Go to Dashboard
+                    </Button>
+                  </div>
+
+                  <p className="text-xs text-slate-500 mt-2">
+                    Tip: your saved plan is stored to your account — updating
+                    your profile there will keep future plans synced.
+                  </p>
+                </div>
+              )}
 
               {/* Quick summary card */}
+              {!hideProfileCard && (
               <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 sm:p-5 space-y-2">
                 <div className="flex items-center gap-2 mb-1">
                   <FileText className="h-4 w-4 text-indigo-300" />
@@ -384,7 +501,9 @@ export default function ResultsPage() {
                   </p>
                 )}
               </div>
+              )}
             </div>
+            
 
             {/* RIGHT: DASHBOARD ACCORDION */}
             <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 p-4 sm:p-5 md:p-6 shadow-lg dark:shadow-xl dark:shadow-black/40">
