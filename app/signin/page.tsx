@@ -33,7 +33,7 @@ export default function SignInPage() {
       return;
     }
 
-    router.replace("/create-plan");
+    router.replace("/dashboard");
   };
 
   return (
